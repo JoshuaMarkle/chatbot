@@ -3,7 +3,10 @@
 import { useState, useEffect, useRef } from "react";
 import Image from "next/image";
 import ReactMarkdown from "react-markdown";
-import Loader from "@/components/Loader"; // bouncing dots, etc.
+import { FaPaperPlane, FaUser } from "react-icons/fa6";
+
+import Loader from "@/components/Loader";
+import { cn } from "@/lib/utils";
 
 export default function ChatPage() {
   /** ----------------  state  ---------------- */
@@ -82,69 +85,84 @@ export default function ChatPage() {
     setBusy(false);
   };
 
-  /** ----------------  render  ---------------- */
+  // Render everything
   return (
-    <main className="mx-auto max-w-4xl p-4">
-      {/* message list */}
-      <div className="space-y-3 pb-24">
+    <main className="mx-auto max-w-4xl p-8">
+      {/* Message list */}
+      <div className="space-y-3 pb-16">
         {messages.map((msg, i) => (
           <ChatMessage key={i} msg={msg} />
         ))}
         <div ref={chatEndRef} />
       </div>
 
-      {/* input bar */}
+      {/* UVA logo*/}
+      <Image
+        src="/uva_icon.png"
+        alt="avatar"
+        width={256}
+        height={256}
+        className={cn(
+          "size-24 absolute top-[calc(50%-128px)] left-1/2 -translate-x-1/2 -translate-y-1/2 pointer-events-none opacity-0",
+          "transition-opacity duration-300 ease-in-out",
+          messages.length === 0 && "opacity-100",
+        )}
+      />
+
+      {/* Input bar */}
       <form
         onSubmit={(e) => {
           e.preventDefault();
           sendMessage();
         }}
-        className="fixed inset-x-0 bottom-4 mx-auto flex max-w-4xl gap-2 rounded-md bg-bg-3 p-2 text-white"
+        className={cn(
+          "fixed flex inset-x-0 bottom-8 left-1/2 -translate-x-1/2 w-full mx-auto max-w-4xl gap-2 bg-bg rounded-xl border border-border p-2",
+          "transition-all duration-300 ease-in-out",
+          messages.length === 0 ? "bottom-1/2" : "",
+        )}
       >
         <input
-          className="flex-1 rounded px-3 py-2 text-black"
-          placeholder="Type your message…"
+          className="flex-1 rounded px-3 py-2 outline-none ring-0 border-none"
+          placeholder="Type your message..."
           value={input}
           onChange={(e) => setInput(e.target.value)}
         />
         <button
           type="submit"
           disabled={busy}
-          className="rounded bg-orange px-4 py-2"
+          className={cn(
+            "rounded-lg bg-orange px-3 py-2 text-white",
+            busy && "bg-orange/60",
+          )}
         >
-          {busy ? "…" : "Send"}
+          <FaPaperPlane className="size-4" />
         </button>
       </form>
     </main>
   );
 }
 
-/* ------------------------------------------------------------------ */
-/*                        helper components                            */
-/* ------------------------------------------------------------------ */
+// ---------- Helpers ----------
 
 function ChatMessage({ msg }) {
   const isUser = msg.role === "user";
-  const avatar = isUser ? "/user_icon.png" : "/uva_icon.png";
 
   return (
     <div className={`flex items-start gap-2 ${isUser ? "justify-end" : ""}`}>
-      {!isUser && <Avatar src={avatar} />}
+      {!isUser && (
+        <Image
+          src="/uva_icon.png"
+          alt="avatar"
+          width={24}
+          height={24}
+          className="size-8 mt-1 pointer-events-none"
+        />
+      )}
       <Bubble isUser={isUser} msg={msg} />
-      {isUser && <Avatar src={avatar} />}
+      {isUser && (
+        <FaUser className="text-white bg-bg-2 p-2 size-9 rounded-full pointer-events-none" />
+      )}
     </div>
-  );
-}
-
-function Avatar({ src }) {
-  return (
-    <Image
-      src={src}
-      alt="avatar"
-      width={24}
-      height={24}
-      className="size-8 mt-1"
-    />
   );
 }
 
@@ -153,7 +171,7 @@ function Bubble({ isUser, msg }) {
     <div
       className={`
         max-w-full rounded-md px-3 py-2 prose prose-sm dark:prose-invert
-        ${isUser ? "bg-bg-3 text-white" : "bg-bg"}
+        ${isUser ? "bg-bg-alt text-white" : "bg-bg"}
       `}
     >
       {isUser ? (
@@ -161,7 +179,7 @@ function Bubble({ isUser, msg }) {
       ) : (
         <>
           {msg.text && <ReactMarkdown>{msg.text}</ReactMarkdown>}
-          {msg.loading && (
+          {!msg.text && (
             <>
               <Loader />
               <DelayedNotice />
@@ -173,7 +191,7 @@ function Bubble({ isUser, msg }) {
   );
 }
 
-/* -------  delayed “busy” notice  ------- */
+// Delayed notice
 function DelayedNotice({ delay = 5000 }) {
   const [show, setShow] = useState(false);
   useEffect(() => {
@@ -182,8 +200,8 @@ function DelayedNotice({ delay = 5000 }) {
   }, [delay]);
 
   return show ? (
-    <p className="mt-2 text-xs text-gray-500 animate-fade-in">
-      Due to many requests, the chatbot might take a second…
+    <p className="mt-2 text-xs text-bg-3 animate-fade-in">
+      Due to many requests, the chatbot might take a second...
     </p>
   ) : null;
 }

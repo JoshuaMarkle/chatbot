@@ -9,12 +9,12 @@
   --font-sans: var(--font-geist-sans, "geist");
   --font-mono: var(--font-geist-mono, "geist mono"), monospace;
 
-  --color-bg: #f3f3f3;
-  --color-bg-2: #aaa;
-  --color-bg-3: #01234f;
+  --color-bg: #fff;
+  --color-bg-2: #ddd;
+  --color-bg-3: #999;
+  --color-bg-alt: #01234f;
   --color-fg: #141e3c;
   --color-fg-2: #232d4b;
-  --color-fg-3: #fff;
 
   --color-red: #da3633;
   --color-red-2: #cf2926;
@@ -24,6 +24,11 @@
   --color-blue-2: #315efc;
   --color-yellow: #ffb347;
   --color-orange: #e57200;
+
+  --color-border: #ddd;
+
+  --color-pre: #fafafa;
+  --color-code: #f2f2f2;
 }
 
 /* Animations */
@@ -61,10 +66,44 @@ html {
 }
 
 ::selection {
-  background-color: var(--color-blue-3, #315efc);
-  color: var(--color-fg, #ffffff);
+  background-color: var(--color-bg-alt, #315efc);
+  color: white;
 }
 
 ::placeholder {
-  color: var(--color-fg-3);
+  color: var(--color-bg-3);
+}
+
+/* Chatbot markdown styling */
+
+code {
+  font-family: var(--font-mono);
+  background: var(--color-code);
+  border-radius: 4px;
+  padding: 2px;
+}
+
+pre {
+  font-family: var(--font-mono);
+  background: var(--color-pre);
+  border-radius: 16px;
+  padding: 16px;
+  margin: 16px 0;
+  overflow: auto;
+
+  /* Scrollbar stuff (thanks gpt) */
+  scrollbar-color: var(--color-bg-2) var(--color-pre);
+  &::-webkit-scrollbar-track {
+    background: var(--color-pre);
+  }
+  &::-webkit-scrollbar-thumb {
+    background-color: var(--color-bg-2);
+    border-radius: 4px;
+  }
+}
+
+pre code {
+  background: var(--color-pre);
+  border-radius: 0;
+  padding: 0;
 }
