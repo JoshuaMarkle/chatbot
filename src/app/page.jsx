@@ -9,30 +9,29 @@ import Loader from "@/components/Loader";
 import { cn } from "@/lib/utils";
 
 export default function ChatPage() {
-  /** ----------------  state  ---------------- */
   const [messages, setMessages] = useState([]);
   const [input, setInput] = useState("");
   const [busy, setBusy] = useState(false);
   const chatEndRef = useRef(null);
 
-  /** ----------------  helpers  ---------------- */
   const scrollToBottom = () =>
     chatEndRef.current?.scrollIntoView({ behavior: "smooth" });
 
   useEffect(scrollToBottom, [messages]);
 
-  /** ----------------  sendMessage ------------- */
+  // Send a message using /api/chat
   const sendMessage = async () => {
     if (!input.trim() || busy) return;
 
     const base = [...messages, { role: "user", text: input }];
     const botIndex = base.length;
 
-    // add user msg + blank bot bubble
+    // Create new blank message
     setMessages([...base, { role: "model", text: "", loading: true }]);
     setInput("");
     setBusy(true);
 
+    // Stream the message from the api
     try {
       const res = await fetch("/api/chat", {
         method: "POST",
@@ -45,10 +44,7 @@ export default function ChatPage() {
         }),
       });
 
-      if (!res.body)
-        throw new Error(
-          "No stream from /api/chat (did you set runtime = 'edge'?)",
-        );
+      if (!res.body) throw new Error("No stream from /api/chat");
 
       const reader = res.body.getReader();
       const decoder = new TextDecoder("utf-8");
@@ -60,7 +56,7 @@ export default function ChatPage() {
 
         buffer += decoder.decode(value, { stream: true });
 
-        // update the single bot bubble
+        // Update the single bot bubble
         setMessages((prev) => {
           const next = [...prev];
           next[botIndex] = { role: "model", text: buffer, loading: true };
@@ -68,7 +64,7 @@ export default function ChatPage() {
         });
       }
 
-      // finalise bubble
+      // Finalise bubble
       setMessages((prev) => {
         const next = [...prev];
         next[botIndex] = { role: "model", text: buffer, loading: false };
@@ -78,7 +74,7 @@ export default function ChatPage() {
       console.error(err);
       setMessages((prev) => [
         ...prev,
-        { role: "model", text: "❌ Failed to load response.", loading: false },
+        { role: "model", text: "Failed to load response.", loading: false },
       ]);
     }
 
@@ -132,7 +128,7 @@ export default function ChatPage() {
           disabled={busy}
           className={cn(
             "rounded-lg bg-orange px-3 py-2 text-white",
-            busy && "bg-orange/60",
+            busy && "bg-orange/40",
           )}
         >
           <FaPaperPlane className="size-4" />
@@ -142,7 +138,7 @@ export default function ChatPage() {
   );
 }
 
-// ---------- Helpers ----------
+// ---------- Helpers ---------- //
 
 function ChatMessage({ msg }) {
   const isUser = msg.role === "user";
@@ -191,7 +187,7 @@ function Bubble({ isUser, msg }) {
   );
 }
 
-// Delayed notice
+// Delayed message (for when the response takes a long time)
 function DelayedNotice({ delay = 5000 }) {
   const [show, setShow] = useState(false);
   useEffect(() => {
