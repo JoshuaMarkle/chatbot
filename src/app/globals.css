@@ -1,26 +1,70 @@
 @import "tailwindcss";
 
 :root {
-  --background: #ffffff;
-  --foreground: #171717;
+  --font-sans: var(--font-geist-sans, "geist"), Arial, Helvetica, sans-serif;
+  --font-mono: var(--font-geist-mono, "geist mono"), monospace;
 }
 
 @theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
+  --font-sans: var(--font-geist-sans, "geist");
+  --font-mono: var(--font-geist-mono, "geist mono"), monospace;
+
+  --color-bg: #f3f3f3;
+  --color-bg-2: #aaa;
+  --color-bg-3: #01234f;
+  --color-fg: #141e3c;
+  --color-fg-2: #232d4b;
+  --color-fg-3: #fff;
+
+  --color-red: #da3633;
+  --color-red-2: #cf2926;
+  --color-green: #00c756;
+  --color-green-2: #00ac8e;
+  --color-blue: #01234f;
+  --color-blue-2: #315efc;
+  --color-yellow: #ffb347;
+  --color-orange: #e57200;
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
+/* Animations */
+@theme {
+  @keyframes fade-in {
+    from {
+      opacity: 0;
+      transform: translateY(8px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
   }
+  --animate-fade-in: fade-in 0.4s ease-out forwards;
+
+  @keyframes bounce-circle {
+    0%,
+    100% {
+      transform: translateY(0);
+    }
+    50% {
+      transform: translateY(-1rem);
+    }
+  }
+  --animate-bounce-delay: bounce-circle 0.6s ease-in-out infinite;
 }
 
-body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+html {
+  font-family: var(--font-geist-sans), arial, helvetica, sans-serif;
+  background-color: var(--color-bg);
+  color: var(--color-fg);
+  overscroll-behavior: none;
+  overflow-x: hidden;
+}
+
+::selection {
+  background-color: var(--color-blue-3, #315efc);
+  color: var(--color-fg, #ffffff);
+}
+
+::placeholder {
+  color: var(--color-fg-3);
 }
